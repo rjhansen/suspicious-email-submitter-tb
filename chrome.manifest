@@ -1,0 +1,2 @@
+content clouseau content/
+overlay chrome://messenger/content/messenger.xul chrome://clouseau/content/clouseau.xul
