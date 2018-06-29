@@ -5,7 +5,7 @@ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
  <toolbarpalette id="MailToolbarPalette">
     <toolbarbutton id="clouseau-button"
       class="clouseau"
-      label="Clouseau"
+      label="Report"
       type="button"
       oncommand="Clouseau.report();"
       />

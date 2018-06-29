@@ -46,7 +46,7 @@ var Clouseau = {
 		try {
 			var configFile = Clouseau.dirService.get("ProfD",
 				Components.interfaces.nsIFile);
-			configFile.append("clouseau.json")
+			configFile.append("malware-reporter.json")
 
 			if (configFile.exists() && configFile.isReadable()) {
 				var str = {};
@@ -75,8 +75,8 @@ var Clouseau = {
 		}
 
 		if (null == Clouseau.config) {
-			Clouseau.notify("No Clouseau config", 
-				"No configuration file was found for Clouseau.")
+			Clouseau.notify("No config", 
+				"No configuration file was found for the Malware Reporter.")
 			document.getElementById("clouseau-button").disabled = true;
 		} else {
 			document.getElementById("clouseau-button").disabled = false;
@@ -111,8 +111,8 @@ var Clouseau = {
 			// we shouldn't ever get here, but on the off chance something
 			// weird happens...
 			document.getElementById("clouseau-button").disabled = true;
-			Clouseau.notify("Clouseau error", 
-				"Please configure Clouseau and restart.");
+			Clouseau.notify("Configuration error", 
+				"Please configure the Malware Reporter and restart.");
 			return;
 		}
 
@@ -142,14 +142,14 @@ var Clouseau = {
 					sendKind);
 			}
 			if (1 == count) {
-				Clouseau.notify("Clouseau", 
+				Clouseau.notify("Malware Reporter", 
 					"Sent one piece" + confirm);
 			} else {
-				Clouseau.notify("Clouseau", 
+				Clouseau.notify("Malware Reporter", 
 					"Sent " + count + " pieces" + confirm);
 			}
 		} catch (error) {
-			Clouseau.notify("Clouseau error", error);
+			Clouseau.notify("Malware Reporter", "Error: " + error);
 		}
 	},
 
