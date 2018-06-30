@@ -12,7 +12,7 @@ for (path, dirs, files) in os.walk("."):
     if ".git" in path:
         continue
     filelist += [(path + os.sep + X)[2:] for X in files
-        if not re.match("^.*~$", X)]
+        if not re.match("^((.*~)|(_.*))$", X)]
 
 with zipfile.ZipFile(filename, "w") as ses:
     [ses.write(X) for X in filelist]
