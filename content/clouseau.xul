@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<overlay id="sample" 
+<overlay id="clouseau-overlay" 
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
  <script type="application/javascript" src="chrome://clouseau/content/overlay.js"/>
  <toolbarpalette id="MailToolbarPalette">
     <toolbarbutton id="clouseau-button"
       class="clouseau"
-      label="Report"
+      label="Report via SES"
       type="button"
       oncommand="Clouseau.report();"
       />
