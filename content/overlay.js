@@ -63,7 +63,7 @@ var Clouseau = {
 		try {
 			var configFile = Clouseau.dirService.get("ProfD",
 				Components.interfaces.nsIFile);
-			configFile.append("malware-reporter.json")
+			configFile.append("ses-tb.json")
 
 			if (configFile.exists() && configFile.isReadable()) {
 				var str = {};
@@ -83,20 +83,22 @@ var Clouseau = {
 				cstream.close();
 
 				Clouseau.config = JSON.parse(data)
-
-				// TODO: Validate the configuration file
 			}
 		}
 		catch (error) {
 			Clouseau.config = null;
 		}
 
-		if (null == Clouseau.config) {
-			Clouseau.notify("No config", 
-				"No configuration file was found for the Malware Reporter.")
-//			document.getElementById("clouseau-button").disabled = true;
-		} else {
-//			document.getElementById("clouseau-button").disabled = false;
+		if (Clouseau.config && (Clouseau.config.hasOwnProperty("serverURL") &&
+		Clouseau.config.hasOwnProperty("authToken") &&
+		Clouseau.config.hasOwnProperty("name") &&
+		Clouseau.config.hasOwnProperty("logo"))) {
+			document.getElementById("clouseau-button").disabled = false;
+		}
+		else {
+			Clouseau.notify("SES Error", 
+				"SES is misconfigured. Malware reporting will be unavailable.")
+			document.getElementById("clouseau-button").disabled = true;
 		}
 	},
 
@@ -127,13 +129,22 @@ var Clouseau = {
 		if (null == Clouseau.config) {
 			// we shouldn't ever get here, but on the off chance something
 			// weird happens...
+			Clouseau.notify("SES Error", 
+				"SES is misconfigured. Malware reporting will be unavailable.")
 			document.getElementById("clouseau-button").disabled = true;
-			Clouseau.notify("Configuration error", 
-				"Please configure the Malware Reporter and restart.");
 			return;
 		}
 
-		var dest = Clouseau.config["send-to"];
+		var dest = Clouseau.config["serverURL"].match(/^mailto:(.*)$/);
+		dest = dest[1] ? dest[1] : null;
+
+		if (dest == null) {
+			Clouseau.notify("SES Error", 
+				"SES is misconfigured. Malware reporting will be unavailable.")
+			document.getElementById("clouseau-button").disabled = true;
+			return;
+		}
+
 		var msgs = gFolderDisplay.selectedMessages;
 		var count = gFolderDisplay.selectedCount;
 		var mailserver = gFolderDisplay.displayedFolder.server;
@@ -143,12 +154,7 @@ var Clouseau = {
 			return;
 		}
 
-		var sendKind = Clouseau.composeService.kForwardAsDefault;
-		if (Clouseau.config["send-as"] == "inline") {
-			sendKind = Clouseau.composeService.kForwardInline;
-		} else if (Clouseau.config["send-as"] == "attachment") {
-			sendKind = Clouseau.composeService.kForwardAsAttachment;
-		}
+		var sendKind = Clouseau.composeService.kForwardAsAttachment;
 
 		try {
 			for (var i = 0 ; i < count ; i += 1) {
@@ -159,10 +165,10 @@ var Clouseau = {
 					sendKind);
 			}
 			if (1 == count) {
-				Clouseau.notify("Malware Reporter", 
+				Clouseau.notify("SES",
 					"Sent one piece" + confirm);
 			} else {
-				Clouseau.notify("Malware Reporter", 
+				Clouseau.notify("SES",
 					"Sent " + count + " pieces" + confirm);
 			}
 		} catch (error) {
@@ -182,9 +188,11 @@ var Clouseau = {
 	//         through code
 	// Exceptions: will not throw
 	report: function() {
-		Clouseau.reportViaEmail();
+		var email = Clouseau.config["serverURL"].match(/^mailto:(.*)$/);
+		if (email[1]) {
+			Clouseau.reportViaEmail();
+		}
 	}
 }
-
 
 window.addEventListener("load", Clouseau.startup, false);
