@@ -15,24 +15,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+var console = Cc["@mozilla.org/consoleservice;1"]
+	.getService(Ci.nsIConsoleService);
+
 var Clouseau = {
 	config: null, // extension-wide configuration options
 
 	// The Mozilla message composition service -- the interface for
 	// everything related to message composition (including forwarding)
-	composeService: Components.classes['@mozilla.org/messengercompose;1']
-		.getService(Components.interfaces.nsIMsgComposeService),
+	composeService: Cc['@mozilla.org/messengercompose;1']
+		.getService(Ci.nsIMsgComposeService),
 	
 	// The Mozilla alert service.  On OS X the alert() function isn't
 	// reliable, so we use the Mozilla notification system instead.
-	alertService: Components.classes['@mozilla.org/alerts-service;1']
-		.getService(Components.interfaces.nsIAlertsService),
+	alertService: Cc['@mozilla.org/alerts-service;1']
+		.getService(Ci.nsIAlertsService),
 	
 
 	// The Mozilla directory service, which is used for all file I/O.
 	// This is used for parsing the config file.
-	dirService: Components.classes['@mozilla.org/file/directory_service;1']
-		.getService(Components.interfaces.nsIProperties),
+	dirService: Cc['@mozilla.org/file/directory_service;1']
+		.getService(Ci.nsIProperties),
 
 	// A crossplatform replacement for Javascript alert().  I wasted 
 	// way too much time thinking my code was working on OS X when it
@@ -44,7 +47,7 @@ var Clouseau = {
 			Clouseau.alertService.showAlertNotification(null, 
 				title, text, false, '', null);
 		} catch(e) {
-			Components.utils.reportError(e);
+			Cu.reportError(e);
 		}
 	},
 	
@@ -61,18 +64,18 @@ var Clouseau = {
 	// Exceptions: will not throw, leaves Clouseau.config as null
 	loadConfig: function() {
 		try {
-			var configFile = Clouseau.dirService.get("ProfD",
-				Components.interfaces.nsIFile);
+			let configFile = Clouseau.dirService.get("ProfD",
+				Ci.nsIFile);
 			configFile.append("ses-tb.json")
 
 			if (configFile.exists() && configFile.isReadable()) {
-				var str = {};
-				var bytesRead = 0;
-				var data = "";
-				var fstream = Components.classes["@mozilla.org/network/file-input-stream;1"]
-					.createInstance(Components.interfaces.nsIFileInputStream);
-				var cstream = Components.classes["@mozilla.org/intl/converter-input-stream;1"]
-					.createInstance(Components.interfaces.nsIConverterInputStream);
+				let str = {};
+				let bytesRead = 0;
+				let data = "";
+				let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+					.createInstance(Ci.nsIFileInputStream);
+				let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+					.createInstance(Ci.nsIConverterInputStream);
 				fstream.init(configFile, -1, 0, 0);
 				cstream.init(fstream, "UTF-8", 0, 0);
 
@@ -86,17 +89,18 @@ var Clouseau = {
 			}
 		}
 		catch (error) {
+			Clouseau.notify("SES error", error);
 			Clouseau.config = null;
 		}
 
-		if (Clouseau.config && (Clouseau.config.hasOwnProperty("serverURL") &&
+		if (Clouseau.config && (Clouseau.config.hasOwnProperty("serverUrl") &&
 		Clouseau.config.hasOwnProperty("authToken") &&
 		Clouseau.config.hasOwnProperty("name") &&
 		Clouseau.config.hasOwnProperty("logo"))) {
 			document.getElementById("clouseau-button").disabled = false;
 		}
 		else {
-			Clouseau.notify("SES Error", 
+			Clouseau.notify("SES error", 
 				"SES is misconfigured. Malware reporting will be unavailable.")
 			document.getElementById("clouseau-button").disabled = true;
 		}
@@ -114,8 +118,7 @@ var Clouseau = {
 		Clouseau.loadConfig();
 	},
 
-	// invoked when messages need to be sent off via email.  At present
-	// it only handles emailed reports, but it does that reasonably well.
+	// invoked when messages need to be sent off via email.
 	//
 	// Parameters: none
 	// Returns: null
@@ -126,43 +129,19 @@ var Clouseau = {
 	//         through code
 	// Exceptions: will not throw
 	reportViaEmail: function() {
-		if (null == Clouseau.config) {
-			// we shouldn't ever get here, but on the off chance something
-			// weird happens...
-			Clouseau.notify("SES Error", 
-				"SES is misconfigured. Malware reporting will be unavailable.")
-			document.getElementById("clouseau-button").disabled = true;
-			return;
-		}
-
-		var dest = Clouseau.config["serverURL"].match(/^mailto:(.*)$/);
-		dest = dest[1] ? dest[1] : null;
-
-		if (dest == null) {
-			Clouseau.notify("SES Error", 
-				"SES is misconfigured. Malware reporting will be unavailable.")
-			document.getElementById("clouseau-button").disabled = true;
-			return;
-		}
-
-		var msgs = gFolderDisplay.selectedMessages;
-		var count = gFolderDisplay.selectedCount;
-		var mailserver = gFolderDisplay.displayedFolder.server;
-		var confirm = " of mail to\n" + dest + "\nfor inspection"
-
-		if (0 == count) {
-			return;
-		}
-
-		var sendKind = Clouseau.composeService.kForwardAsAttachment;
+		let msgs = gFolderDisplay.selectedMessages;
+		let count = gFolderDisplay.selectedCount;
+		let mailserver = gFolderDisplay.displayedFolder.server;
+		let confirm = " of mail to\n" + dest + "\nfor inspection"
+		let asAttachment = Clouseau.composeService.kForwardAsAttachment;
 
 		try {
-			for (var i = 0 ; i < count ; i += 1) {
+			for (let i = 0 ; i < count ; i += 1) {
 				Clouseau.composeService.forwardMessage(dest,
 					msgs[i],
 					null, // do not open a compose window
 					mailserver,
-					sendKind);
+					asAttachment);
 			}
 			if (1 == count) {
 				Clouseau.notify("SES",
@@ -172,12 +151,98 @@ var Clouseau = {
 					"Sent " + count + " pieces" + confirm);
 			}
 		} catch (error) {
-			Clouseau.notify("Malware Reporter", "Error: " + error);
+			Clouseau.notify("SES", "Error: " + error);
+		}
+	},
+
+	completeWebRequest: function(msg) {
+		let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
+		// For right now, calls are done synchronously.  We need to
+		// walk before we run...
+		
+		req.open("POST", Clouseau.config["serverUrl"], false);
+		req.setRequestHeader("Accept", "application/json");
+		req.setRequestHeader("Content-Type", "application/json");
+		req.setRequestHeader("Authorization", Clouseau.config["authToken"]);
+		
+		objects = [
+			{
+				'name': 'email',
+				'meta-category': 'network',
+				'description': 'Email object describing an email with meta-information',
+				'template_uuid': 'a0c666e0-fc65-4be8-b48f-3423d788b552',
+				'template_version': 10,
+				'Attribute': [
+					{
+						'category': 'Payload delivery',
+						'type': 'attachment',
+						'object_relation': 'eml',
+						'value': 'Raw Email',
+						'data': msg
+					}
+				],
+			}
+		];
+		let body = JSON.stringify({
+			'Event': {
+				'info': 'Suspicious Email Submitter',
+				'distribution': 0,
+				'threat_level_id': 3,
+				'analysis': 1,
+				'Object': objects
+			}
+		});		
+		req.send(body);
+		if (req.status != "200") {
+			Clouseau.notify("SES error", "Server returned status " + 
+				req.status);
+		} else {
+			Clouseau.notify("SES", "Submitted an email to " + Clouseau.config["serverUrl"]);
+		}
+		req.close();
+	},
+
+	// invoked when messages need to be sent off via HTTPS.
+	//
+	// Parameters: none
+	// Returns: null
+	// Side effects: creates network traffic
+	// Errors: may report errors to the user, but not propagated back
+	//         through code
+	// Exceptions: will not throw
+	reportViaHTTPS: function() {
+		let count = gFolderDisplay.selectedCount;
+		let idx = 0;
+		for (idx = 0 ; idx < count ; idx += 1) {
+			let content = ""
+			let header = gFolderDisplay.selectedMessages[idx];
+			let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+			let folder = header.folder;
+			let uri = folder.getUriForMsg(header);
+			let svc = messenger.messageServiceFromURI(uri);
+			let stream = Cc["@mozilla.org/network/sync-stream-listener;1"].createInstance();
+			let consumer = stream.QueryInterface(Ci.nsIInputStream);
+			let si = Cc["@mozilla.org/scriptableinputstream;1"].createInstance();
+			let sis = si.QueryInterface(Ci.nsIScriptableInputStream);
+			sis.init(consumer);
+			try {
+				svc.streamMessage(uri, stream, null, null, false, null);
+			} catch (ex) {
+				Clouseau.notify("SES error", "error: " + ex);
+			}
+
+			sis.available();
+			while (sis.available()) {
+				content += sis.read(1024);
+			}
+
+			Clouseau.completeWebRequest(content);
 		}
 	},
 
 	// invoked when the client hits the magic button.  At present it
 	// only handles emailed reports, but it does that reasonably well.
+	// Work is underway to handle HTTPS submissions.
 	//
 	// Parameters: none
 	// Returns: null
@@ -188,9 +253,29 @@ var Clouseau = {
 	//         through code
 	// Exceptions: will not throw
 	report: function() {
-		var email = Clouseau.config["serverURL"].match(/^mailto:(.*)$/);
-		if (email[1]) {
+		let count = gFolderDisplay.selectedCount;
+
+		if (0 == count) {
+			return;
+		}
+
+		if (null == Clouseau.config) {
+			// we shouldn't ever get here, but on the off chance something
+			// weird happens...
+			Clouseau.notify("SES error", 
+				"SES is misconfigured. Malware reporting will be unavailable.")
+			document.getElementById("clouseau-button").disabled = true;
+			return;
+		}
+
+		if (Clouseau.config["serverUrl"].match(/^mailto:.*$/)) {
 			Clouseau.reportViaEmail();
+		} else if (Clouseau.config["serverUrl"].match(/^https:\/\/.*$/)) {
+			Clouseau.reportViaHTTPS();
+		} else {
+			Clouseau.notify("SES error", 
+				"SES is misconfigured. Malware reporting will be unavailable.")
+			document.getElementById("clouseau-button").disabled = true;
 		}
 	}
 }
