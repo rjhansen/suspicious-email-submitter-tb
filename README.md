@@ -1,20 +1,21 @@
 # suspicious-email-submitter-tb
 
-A Thunderbird add-on to facilitate forwarding malicious emails to analysts.
+A Thunderbird add-on to facilitate forwarding malicious emails to analysts via the Suspicious Email Submission process.
 
 ## What does it do?
 
-It adds a single button (conveniently marked "Report") that will take an email or a selection of emails and send those messages to a pre-configured email address for further analysis.  Once configured, it's genuinely a one-click-and-done experience.
+It adds a single button (conveniently marked "Report to SES") that will take an email or a selection of emails and send those messages to a pre-configured email address for further analysis.  Once configured, it's genuinely a one-click-and-done experience.
 
 ## How can I test it out?
 
+ * Install [Python 3.5 or later](https://www.python.org/downloads/), which you'll need for one of the build scripts
  * Download the latest [source](https://github.com/rjhansen/suspicious-email-submitter-tb/archive/master.zip) and uncompress it to a directory of your choice
  * Open a terminal window and change to that directory
  * Run `python3 ./make-xpi.py`, which will place `SES-tb.xpi` in your home directory
- * In your Thunderbird profile directory (_not_ the `extensions/` subdirectory, which is beneath it) create a file called `ses-tb.json`. It should look like this. (At this time, all all serverURLs must be `mailto:`s.  HTTPS submission is under development.)
+ * In your Thunderbird profile directory (_not_ the `extensions/` subdirectory, which is beneath it) create a file called `ses-tb.json`. It should look like this.
  ```
  {
-     "serverURL": "mailto:my_analyst@example.com",
+     "serverUrl": "mailto:my_analyst@example.com",
      "authToken": "my_analyst@example.com",
      "name": "your organization name",
      "logo": "your organization logo"
@@ -29,4 +30,4 @@ Once you have this process finished -- honestly, it's easier than it sounds -- i
 
 ## Is it only email?
 
-For now, although submitting via uploading to a webserver will be coming shortly.
+Both `mailto:` and `https://` handlers exist, but only `mailto:` has had significant testing. `https://` is a work in progress.
