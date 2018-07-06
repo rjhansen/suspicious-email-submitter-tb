@@ -99,16 +99,19 @@ var Clouseau = {
 		Clouseau.config.hasOwnProperty("authToken") &&
 		Clouseau.config.hasOwnProperty("name") &&
 		Clouseau.config.hasOwnProperty("logo"))) {
-			Clouseau.enableUI();
+			Clouseau.enableUI(true);
 		}
 		else {
 			Clouseau.notify("SES error", 
 				"SES is misconfigured. Malware reporting will be unavailable.");
-			Clouseau.disableUI();
+			Clouseau.enableUI(false);
 		}
 	},
 
 	chooseNewConfig: function() {
+		const nsIFP = Ci.nsIFilePicker;
+		let confDir = Clouseau.dirService.get("ProfD",
+			Ci.nsIFile);
 		let picker = Cc["@mozilla.org/filepicker;1"]
 				.createInstance(Ci.nsIFilePicker);
 		picker.init(window, "Choose SES config file", nsIFP.modeOpen);
@@ -118,11 +121,7 @@ var Clouseau = {
 			return;
 		}
 		Clouseau.loadConfig(picker.file);
-		if (null != Clouseau.config) {
-			configFile.copyTo(confDir, "ses-tb.json");
-		} else {
-			Clouseau.loadConfig(null);
-		}
+		picker.file.copyTo(confDir, "ses-tb.json");
 	},
 
 	// called on startup.  At present, the only thing it does is call
@@ -134,7 +133,7 @@ var Clouseau = {
 	// Errors: see Clouseau.loadConfig()
 	// Exceptions: will not throw
 	startup: function() {
-		Clouseau.disableUI();
+		Clouseau.enableUI(false);
 
 		const nsIFP = Ci.nsIFilePicker;
 		let confDir = Clouseau.dirService.get("ProfD",
@@ -187,28 +186,19 @@ var Clouseau = {
 		}
 	},
 
-	// Disables the SES user interface.
+	// Sets the SES user interface to enabled (true) or disabled 
+	// (false)
 	//
-	// Parameters: none
+	// Parameters: enabled
 	// Returns: none
-	// Side effects: disables SES UX
+	// Side effects: alters SES UX state
 	// Errors: none
 	// Exceptions: does not throw errors
-	disableUI: function() {
-		document.getElementById("toolbar_SES-button").disabled = true;
-		document.getElementById("mailContext_SES-report").disabled = true;
-	},
-
-	// Enables the SES user interface.
-	//
-	// Parameters: none
-	// Returns: none
-	// Side effects: enables SES UX
-	// Errors: none
-	// Exceptions: does not throw errors
-	enableUI: function() {
-		document.getElementById("toolbar_SES-button").disabled = false;
-		document.getElementById("mailContext_SES-report").disabled = false;
+	enableUI: function(state) {
+		btn = document.getElementById("SES-button");
+		menu = document.getElementById("SES-report");
+		if (btn) btn.disabled = !state;
+		if (menu) menu.disabled = !state;
 	},
 
 	// Initiates an XMLHttpRequest to a MISP instance and sends one message.
@@ -327,7 +317,7 @@ var Clouseau = {
 			// weird happens...
 			Clouseau.notify("SES error", 
 				"SES is misconfigured. Malware reporting will be unavailable.");
-			Clouseau.disableUI();
+			Clouseau.enableUI(false);
 			return;
 		}
 
@@ -338,7 +328,7 @@ var Clouseau = {
 		} else {
 			Clouseau.notify("SES error", 
 				"SES is misconfigured. Malware reporting will be unavailable.");
-			Clouseau.disableUI();
+			Clouseau.enableUI(false);
 		}
 	}
 }

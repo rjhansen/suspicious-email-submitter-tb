@@ -3,7 +3,8 @@
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
  <script type="application/javascript" src="chrome://clouseau/content/overlay.js"/>
  <toolbarpalette id="MailToolbarPalette">
-    <toolbarbutton id="toolbar_SES-button"
+    <toolbarbutton id="SES-button"
+      class="clouseau"
       label="Report via SES"
       type="button"
       oncommand="Clouseau.report();"
@@ -12,7 +13,7 @@ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <menubar id="mail-menubar">
     <menu id="menubar_SES" label="SES">
-      <menupopup id="menubar_SES-popup">
+      <menupopup id="SES-popup">
         <menuitem label="Load config file"
           oncommand="Clouseau.chooseNewConfig();"/>
         <menuseparator/>
@@ -23,7 +24,7 @@ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   </menubar>
 
   <menupopup id="mailContext">
-    <menuitem id="mailContext_SES-report"
+    <menuitem id="SES-report"
       label="Report to SES"
       oncommand="Clouseau.report();" />
   </menupopup>
