@@ -108,6 +108,23 @@ var Clouseau = {
 		}
 	},
 
+	chooseNewConfig: function() {
+		let picker = Cc["@mozilla.org/filepicker;1"]
+				.createInstance(Ci.nsIFilePicker);
+		picker.init(window, "Choose SES config file", nsIFP.modeOpen);
+		picker.appendFilter("JSON files", "*.json");
+		rv = picker.show();
+		if (rv != nsIFP.returnOK) {
+			return;
+		}
+		Clouseau.loadConfig(picker.file);
+		if (null != Clouseau.config) {
+			configFile.copyTo(confDir, "ses-tb.json");
+		} else {
+			Clouseau.loadConfig(null);
+		}
+	},
+
 	// called on startup.  At present, the only thing it does is call
 	// loadConfig().
 	//
@@ -127,21 +144,10 @@ var Clouseau = {
 		configFile.append("ses-tb.json");
 
 		if (! configFile.exists()) {
-			let picker = Cc["@mozilla.org/filepicker;1"]
-				.createInstance(Ci.nsIFilePicker);
-			picker.init(window, "Choose SES config file", nsIFP.modeOpen);
-			picker.appendFilter("JSON files", "*.json");
-			rv = picker.show();
-			if (rv != nsIFP.returnOK) {
-				Clouseau.notify("SES", 
-				"SES is not configured.  Email reporting " +
-				"will be unavailable until this is corrected.");
-				return;
-			}
-			configFile = picker.file;
-			configFile.copyTo(confDir, "ses-tb.json");
+			Clouseau.chooseNewConfig();
+		} else {
+			Clouseau.loadConfig(configFile);
 		}
-		Clouseau.loadConfig(configFile);
 	},
 
 	// invoked when messages need to be sent off via email.
