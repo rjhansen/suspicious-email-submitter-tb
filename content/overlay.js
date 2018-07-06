@@ -57,16 +57,18 @@ var Clouseau = {
 	// smart things in the face of bad input, but it's not perfect.
 	// Far from it, in fact.
 	//
-	// Parameters: none
+	// Parameters: nsIFile to read from, or null
 	// Returns: null
 	// Side effects: populates Clouseau.config
 	// Errors: leaves Clouseau.config as null
 	// Exceptions: will not throw, leaves Clouseau.config as null
-	loadConfig: function() {
+	loadConfig: function(configFile) {
 		try {
-			let configFile = Clouseau.dirService.get("ProfD",
-				Ci.nsIFile);
-			configFile.append("ses-tb.json")
+			if (null == configFile) {
+				configFile = Clouseau.dirService.get("ProfD",
+					Ci.nsIFile);
+				configFile.append("ses-tb.json")
+			}
 
 			if (configFile.exists() && configFile.isReadable()) {
 				let str = {};
@@ -115,7 +117,31 @@ var Clouseau = {
 	// Errors: see Clouseau.loadConfig()
 	// Exceptions: will not throw
 	startup: function() {
-		Clouseau.loadConfig();
+		document.getElementById("clouseau-button").disabled = true;
+
+		const nsIFP = Ci.nsIFilePicker;
+		let confDir = Clouseau.dirService.get("ProfD",
+		Ci.nsIFile);
+		let configFile = Clouseau.dirService.get("ProfD",
+			Ci.nsIFile);
+		configFile.append("ses-tb.json");
+
+		if (! configFile.exists()) {
+			let picker = Cc["@mozilla.org/filepicker;1"]
+				.createInstance(Ci.nsIFilePicker);
+			picker.init(window, "Choose SES config file", nsIFP.modeOpen);
+			picker.appendFilter("JSON files", "*.json");
+			rv = picker.show();
+			if (rv != nsIFP.returnOK) {
+				Clouseau.notify("SES", 
+				"SES is not configured.  Email reporting " +
+				"will be unavailable until this is corrected.");
+				return;
+			}
+			configFile = picker.file;
+			configFile.copyTo(confDir, "ses-tb.json");
+		}
+		Clouseau.loadConfig(configFile);
 	},
 
 	// invoked when messages need to be sent off via email.

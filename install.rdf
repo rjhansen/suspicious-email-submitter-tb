@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>clouseau@hansen.engineering</em:id>
-    <em:name>Malware Reporter</em:name>
+    <em:name>Suspicious Email Submitter</em:name>
     <em:version>0.7</em:version>
     <em:creator>Rob Hansen</em:creator>
    
