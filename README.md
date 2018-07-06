@@ -26,6 +26,7 @@ You will need [Python 3.5 or later](https://www.python.org/downloads/) to build 
  * Start Thunderbird
  * Install the `.xpi` file found in your home directory
  * Restart Thunderbird
+ * You’ll get a file picker prompt.  Choose your SES configuration file.
  * In `Preferences->Toolbar Layout` (`View->Toolbars->Customize` on macOS), click and drag the “Report to SES” button where you like in your Thunderbird toolbar
 
 ## Is it only email?
