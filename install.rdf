@@ -6,8 +6,10 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>clouseau@hansen.engineering</em:id>
     <em:name>Suspicious Email Submitter</em:name>
-    <em:version>0.7</em:version>
+    <em:version>0.8</em:version>
     <em:creator>Rob Hansen</em:creator>
+    <em:description>One-click submission of suspicious emails to MISP servers.</em:description>
+    <em:homepageURL>https://github.com/CiviCERT/suspicious-email-submitter-thunderbird/</em:homepageURL>
    
     <em:targetApplication>
       <Description>

@@ -187,16 +187,37 @@ var Clouseau = {
 		}
 	},
 
+	// Disables the SES user interface.
+	//
+	// Parameters: none
+	// Returns: none
+	// Side effects: disables SES UX
+	// Errors: none
+	// Exceptions: does not throw errors
 	disableUI: function() {
 		document.getElementById("toolbar_SES-button").disabled = true;
 		document.getElementById("mailContext_SES-report").disabled = true;
 	},
 
+	// Enables the SES user interface.
+	//
+	// Parameters: none
+	// Returns: none
+	// Side effects: enables SES UX
+	// Errors: none
+	// Exceptions: does not throw errors
 	enableUI: function() {
 		document.getElementById("toolbar_SES-button").disabled = false;
 		document.getElementById("mailContext_SES-report").disabled = false;
 	},
 
+	// Initiates an XMLHttpRequest to a MISP instance and sends one message.
+	//
+	// Parameters: a complete email message
+	// Returns: none
+	// Side effects: causes network traffic to be sent
+	// Errors: none
+	// Exceptions: does not throw errors
 	completeWebRequest: function(msg) {
 		let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
 		// For right now, calls are done synchronously.  We need to
