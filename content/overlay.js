@@ -99,12 +99,12 @@ var Clouseau = {
 		Clouseau.config.hasOwnProperty("authToken") &&
 		Clouseau.config.hasOwnProperty("name") &&
 		Clouseau.config.hasOwnProperty("logo"))) {
-			document.getElementById("clouseau-button").disabled = false;
+			Clouseau.enableUI();
 		}
 		else {
 			Clouseau.notify("SES error", 
-				"SES is misconfigured. Malware reporting will be unavailable.")
-			document.getElementById("clouseau-button").disabled = true;
+				"SES is misconfigured. Malware reporting will be unavailable.");
+			Clouseau.disableUI();
 		}
 	},
 
@@ -134,7 +134,7 @@ var Clouseau = {
 	// Errors: see Clouseau.loadConfig()
 	// Exceptions: will not throw
 	startup: function() {
-		document.getElementById("clouseau-button").disabled = true;
+		Clouseau.disableUI();
 
 		const nsIFP = Ci.nsIFilePicker;
 		let confDir = Clouseau.dirService.get("ProfD",
@@ -185,6 +185,16 @@ var Clouseau = {
 		} catch (error) {
 			Clouseau.notify("SES", "Error: " + error);
 		}
+	},
+
+	disableUI: function() {
+		document.getElementById("toolbar_SES-button").disabled = true;
+		document.getElementById("mailContext_SES-report").disabled = true;
+	},
+
+	enableUI: function() {
+		document.getElementById("toolbar_SES-button").disabled = false;
+		document.getElementById("mailContext_SES-report").disabled = false;
 	},
 
 	completeWebRequest: function(msg) {
@@ -295,8 +305,8 @@ var Clouseau = {
 			// we shouldn't ever get here, but on the off chance something
 			// weird happens...
 			Clouseau.notify("SES error", 
-				"SES is misconfigured. Malware reporting will be unavailable.")
-			document.getElementById("clouseau-button").disabled = true;
+				"SES is misconfigured. Malware reporting will be unavailable.");
+			Clouseau.disableUI();
 			return;
 		}
 
@@ -306,8 +316,8 @@ var Clouseau = {
 			Clouseau.reportViaHTTPS();
 		} else {
 			Clouseau.notify("SES error", 
-				"SES is misconfigured. Malware reporting will be unavailable.")
-			document.getElementById("clouseau-button").disabled = true;
+				"SES is misconfigured. Malware reporting will be unavailable.");
+			Clouseau.disableUI();
 		}
 	}
 }

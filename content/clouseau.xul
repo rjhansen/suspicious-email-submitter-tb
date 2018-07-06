@@ -3,8 +3,7 @@
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
  <script type="application/javascript" src="chrome://clouseau/content/overlay.js"/>
  <toolbarpalette id="MailToolbarPalette">
-    <toolbarbutton id="clouseau-button"
-      class="clouseau"
+    <toolbarbutton id="toolbar_SES-button"
       label="Report via SES"
       type="button"
       oncommand="Clouseau.report();"
