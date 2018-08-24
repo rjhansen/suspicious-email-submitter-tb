@@ -18,7 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 var console = Cc["@mozilla.org/consoleservice;1"]
 	.getService(Ci.nsIConsoleService);
 
-var Clouseau = {
+var SES = {
 	config: null, // extension-wide configuration options
 
 	// The Mozilla message composition service -- the interface for
@@ -44,109 +44,96 @@ var Clouseau = {
 	// and forget all about this.  *Don't.*
 	notify: function(title, text) {
 		try {
-			Clouseau.alertService.showAlertNotification(null, 
+			SES.alertService.showAlertNotification(null, 
 				title, text, false, '', null);
 		} catch(e) {
 			Cu.reportError(e);
 		}
 	},
+
+	editConfig: function() {
+		let configFile = SES.dirService.get("ProfD", Ci.nsIFile);
+		configFile.append("ses-tb.json");
+
+		SES.config = null;
+
+		if (configFile.exists() && configFile.isReadable()) {
+			let str = {};
+			let bytesRead = 0;
+			let data = "";
+			let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+				.createInstance(Ci.nsIFileInputStream);
+			let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+				.createInstance(Ci.nsIConverterInputStream);
+			fstream.init(configFile, -1, 0, 0);
+			cstream.init(fstream, "UTF-8", 0, 0);
+
+			do { 
+				bytesRead = cstream.readString(0xffffffff, str);
+				data += str.value;
+			} while (bytesRead != 0);
+			cstream.close();
+
+			SES.config = JSON.parse(data);
+		}
+
+		window.openDialog("chrome://ses/content/configWindow.xul",
+			"SES Configuration", "chrome,dialog,modal,resizable=yes",
+			{"input": SES.config}).focus();
+	},
 	
-	// Loads the configuration file ("clouseau.json") from disk.
+	// Loads the configuration file ("ses-tb.json") from disk.
 	// This file *MUST* be UTF-8, in proper JSON format, and comply
 	// to a specific format (see the docs).  This code tries to do
 	// smart things in the face of bad input, but it's not perfect.
 	// Far from it, in fact.
 	//
-	// Parameters: nsIFile to read from, or null
+	// Parameters: null
 	// Returns: null
-	// Side effects: populates Clouseau.config
-	// Errors: leaves Clouseau.config as null
-	// Exceptions: will not throw, leaves Clouseau.config as null
-	loadConfig: function(configFile) {
-		try {
-			if (null == configFile) {
-				configFile = Clouseau.dirService.get("ProfD",
-					Ci.nsIFile);
-				configFile.append("ses-tb.json")
-			}
+	// Side effects: populates SES.config
+	// Errors: leaves SES.config as null
+	// Exceptions: will not throw, leaves SES.config as null
+	loadConfig: function() {
+		let configFile = SES.dirService.get("ProfD", Ci.nsIFile);
+		configFile.append("ses-tb.json");
 
-			if (configFile.exists() && configFile.isReadable()) {
-				let str = {};
-				let bytesRead = 0;
-				let data = "";
-				let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-					.createInstance(Ci.nsIFileInputStream);
-				let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-					.createInstance(Ci.nsIConverterInputStream);
-				fstream.init(configFile, -1, 0, 0);
-				cstream.init(fstream, "UTF-8", 0, 0);
-
-				do { 
-					bytesRead = cstream.readString(0xffffffff, str);
-					data += str.value;
-				} while (bytesRead != 0);
-				cstream.close();
-
-				Clouseau.config = JSON.parse(data)
-			}
-		}
-		catch (error) {
-			Clouseau.notify("SES error", error);
-			Clouseau.config = null;
+		if (! (configFile.exists() && configFile.isReadable())) {
+			window.openDialog("chrome://ses/content/configWindow.xul",
+			"SES Configuration", "chrome,dialog,modal,resizable=yes",
+			null).focus();
 		}
 
-		if (Clouseau.config && (Clouseau.config.hasOwnProperty("serverUrl") &&
-		Clouseau.config.hasOwnProperty("authToken") &&
-		Clouseau.config.hasOwnProperty("name") &&
-		Clouseau.config.hasOwnProperty("logo"))) {
-			Clouseau.enableUI(true);
-		}
-		else {
-			Clouseau.notify("SES error", 
-				"SES is misconfigured. Malware reporting will be unavailable.");
-			Clouseau.enableUI(false);
+		if (configFile.exists() && configFile.isReadable()) {
+			let str = {};
+			let bytesRead = 0;
+			let data = "";
+			let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+				.createInstance(Ci.nsIFileInputStream);
+			let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+				.createInstance(Ci.nsIConverterInputStream);
+			fstream.init(configFile, -1, 0, 0);
+			cstream.init(fstream, "UTF-8", 0, 0);
+
+			do { 
+				bytesRead = cstream.readString(0xffffffff, str);
+				data += str.value;
+			} while (bytesRead != 0);
+			cstream.close();
+
+			SES.config = JSON.parse(data);
+		} else {
+			SES.config = null;
 		}
 	},
 
-	chooseNewConfig: function() {
-		const nsIFP = Ci.nsIFilePicker;
-		let confDir = Clouseau.dirService.get("ProfD",
-			Ci.nsIFile);
-		let picker = Cc["@mozilla.org/filepicker;1"]
-				.createInstance(Ci.nsIFilePicker);
-		picker.init(window, "Choose SES config file", nsIFP.modeOpen);
-		picker.appendFilter("JSON files", "*.json");
-		rv = picker.show();
-		if (rv != nsIFP.returnOK) {
-			return;
-		}
-		Clouseau.loadConfig(picker.file);
-		picker.file.copyTo(confDir, "ses-tb.json");
-	},
-
-	// called on startup.  At present, the only thing it does is call
-	// loadConfig().
+	// called on startup.  A no-op.
 	//
 	// Parameters: none
 	// Returns: null
-	// Side effects: see Clouseau.config
-	// Errors: see Clouseau.loadConfig()
+	// Side effects: None
+	// Errors: None
 	// Exceptions: will not throw
 	startup: function() {
-		Clouseau.enableUI(false);
-
-		const nsIFP = Ci.nsIFilePicker;
-		let confDir = Clouseau.dirService.get("ProfD",
-		Ci.nsIFile);
-		let configFile = Clouseau.dirService.get("ProfD",
-			Ci.nsIFile);
-		configFile.append("ses-tb.json");
-
-		if (! configFile.exists()) {
-			Clouseau.chooseNewConfig();
-		} else {
-			Clouseau.loadConfig(configFile);
-		}
 	},
 
 	// invoked when messages need to be sent off via email.
@@ -164,41 +151,26 @@ var Clouseau = {
 		let count = gFolderDisplay.selectedCount;
 		let mailserver = gFolderDisplay.displayedFolder.server;
 		let confirm = " of mail to\n" + dest + "\nfor inspection"
-		let asAttachment = Clouseau.composeService.kForwardAsAttachment;
+		let asAttachment = SES.composeService.kForwardAsAttachment;
 
 		try {
 			for (let i = 0 ; i < count ; i += 1) {
-				Clouseau.composeService.forwardMessage(dest,
+				SES.composeService.forwardMessage(dest,
 					msgs[i],
 					null, // do not open a compose window
 					mailserver,
 					asAttachment);
 			}
 			if (1 == count) {
-				Clouseau.notify("SES",
+				SES.notify("SES",
 					"Sent one piece" + confirm);
 			} else {
-				Clouseau.notify("SES",
+				SES.notify("SES",
 					"Sent " + count + " pieces" + confirm);
 			}
 		} catch (error) {
-			Clouseau.notify("SES", "Error: " + error);
+			SES.notify("SES", "Error: " + error);
 		}
-	},
-
-	// Sets the SES user interface to enabled (true) or disabled 
-	// (false)
-	//
-	// Parameters: enabled
-	// Returns: none
-	// Side effects: alters SES UX state
-	// Errors: none
-	// Exceptions: does not throw errors
-	enableUI: function(state) {
-		btn = document.getElementById("SES-button");
-		menu = document.getElementById("SES-report");
-		if (btn) btn.disabled = !state;
-		if (menu) menu.disabled = !state;
 	},
 
 	// Initiates an XMLHttpRequest to a MISP instance and sends one message.
@@ -209,14 +181,20 @@ var Clouseau = {
 	// Errors: none
 	// Exceptions: does not throw errors
 	completeWebRequest: function(msg) {
-		let req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
+		try {
+			req = Cc["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
+		} 
+		catch (ex) {
+			req = new XMLHttpRequest();
+		}
+
 		// For right now, calls are done synchronously.  We need to
 		// walk before we run...
 		
-		req.open("POST", Clouseau.config["serverUrl"], false);
+		req.open("POST", SES.config.serverUrl, false);
 		req.setRequestHeader("Accept", "application/json");
 		req.setRequestHeader("Content-Type", "application/json");
-		req.setRequestHeader("Authorization", Clouseau.config["authToken"]);
+		req.setRequestHeader("Authorization", SES.config.authToken);
 		
 		objects = [
 			{
@@ -247,10 +225,10 @@ var Clouseau = {
 		});		
 		req.send(body);
 		if (req.status != "200") {
-			Clouseau.notify("SES error", "Server returned status " + 
+			SES.notify("SES error", "Server returned status " + 
 				req.status);
 		} else {
-			Clouseau.notify("SES", "Submitted an email to " + Clouseau.config["serverUrl"]);
+			SES.notify("SES", "Submitted an email to " + SES.config["serverUrl"]);
 		}
 		req.close();
 	},
@@ -280,16 +258,15 @@ var Clouseau = {
 			sis.init(consumer);
 			try {
 				svc.streamMessage(uri, stream, null, null, false, null);
+				sis.available();
+				while (sis.available()) {
+					content += sis.read(1024);
+				}
+				sis.close();
 			} catch (ex) {
-				Clouseau.notify("SES error", "error: " + ex);
+				SES.notify("SES error", "error: " + ex);
 			}
-
-			sis.available();
-			while (sis.available()) {
-				content += sis.read(1024);
-			}
-
-			Clouseau.completeWebRequest(content);
+			SES.completeWebRequest(content);
 		}
 	},
 
@@ -301,36 +278,28 @@ var Clouseau = {
 	// Returns: null
 	// Side effects: causes data to be either queued for sending later,
 	//               or immediately sent, depending on the user's
-	//               Thunderbird preferences
+	//               Thunderbird preferences.  Will also load the
+	//               config file anew each time.
 	// Errors: may report errors to the user, but not propagated back
 	//         through code
 	// Exceptions: will not throw
 	report: function() {
-		let count = gFolderDisplay.selectedCount;
-
-		if (0 == count) {
+		if (0 == gFolderDisplay.selectedCount) {
 			return;
 		}
 
-		if (null == Clouseau.config) {
-			// we shouldn't ever get here, but on the off chance something
-			// weird happens...
-			Clouseau.notify("SES error", 
-				"SES is misconfigured. Malware reporting will be unavailable.");
-			Clouseau.enableUI(false);
+		SES.loadConfig();
+
+		if (null == SES.config) {
 			return;
 		}
 
-		if (Clouseau.config["serverUrl"].match(/^mailto:.*$/)) {
-			Clouseau.reportViaEmail();
-		} else if (Clouseau.config["serverUrl"].match(/^https:\/\/.*$/)) {
-			Clouseau.reportViaHTTPS();
-		} else {
-			Clouseau.notify("SES error", 
-				"SES is misconfigured. Malware reporting will be unavailable.");
-			Clouseau.enableUI(false);
+		if (SES.config["serverUrl"].match(/^mailto:.*$/)) {
+			SES.reportViaEmail();
+		} else if (SES.config["serverUrl"].match(/^https:\/\/.*$/)) {
+			SES.reportViaHTTPS();
 		}
 	}
 }
 
-window.addEventListener("load", Clouseau.startup, false);
+window.addEventListener("load", SES.startup, false);

@@ -1,23 +1,22 @@
 <?xml version="1.0"?>
-<overlay id="clouseau-overlay" 
+<overlay id="ses_tb-overlay" 
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
- <script type="application/javascript" src="chrome://clouseau/content/overlay.js"/>
+ <script type="application/javascript" src="chrome://ses/content/overlay.js"/>
  <toolbarpalette id="MailToolbarPalette">
     <toolbarbutton id="SES-button"
-      class="clouseau"
-      label="Report via SES"
+      label="Report via Suspicious Email Submitter"
       type="button"
-      oncommand="Clouseau.report();"
+      oncommand="SES.report();"
       />
   </toolbarpalette>
 
   <menubar id="mail-menubar">
     <menu id="menubar_SES" label="SES">
       <menupopup id="SES-popup">
-        <menuitem label="Load config file"
-          oncommand="Clouseau.chooseNewConfig();"/>
+        <menuitem label="Edit configuration"
+          oncommand="SES.editConfig();"/>
         <menuseparator/>
-        <menuitem label="About SES"
+        <menuitem label="About the Suspicious Email Submitter"
           oncommand='messenger.launchExternalURL("https://github.com/CiviCERT/suspicious-email-submitter-thunderbird/wiki");'/>
       </menupopup>
     </menu>
@@ -25,7 +24,7 @@ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <menupopup id="mailContext">
     <menuitem id="SES-report"
-      label="Report to SES"
-      oncommand="Clouseau.report();" />
+      label="Report via Suspicious Email Submitter"
+      oncommand="SES.report();" />
   </menupopup>
 </overlay>

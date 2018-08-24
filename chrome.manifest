@@ -1,2 +1,2 @@
-content clouseau content/
-overlay chrome://messenger/content/messenger.xul chrome://clouseau/content/clouseau.xul
+content ses content/
+overlay chrome://messenger/content/messenger.xul chrome://ses/content/ses.xul

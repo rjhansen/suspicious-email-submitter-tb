@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 
 
-filename = str(Path.home()) + os.sep + "SES-tb.xpi"
+filename = str(Path.home()) + os.sep + "ses_tb.xpi"
 filelist = []
 for (path, dirs, files) in os.walk("."):
     if ".git" in path:
