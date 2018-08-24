@@ -9,7 +9,7 @@ from pathlib import Path
 filename = str(Path.home()) + os.sep + "ses_tb.xpi"
 filelist = []
 for (path, dirs, files) in os.walk("."):
-    if ".git" in path:
+    if ".git" in path or "node_modules" in path:
         continue
     filelist += [(path + os.sep + X)[2:] for X in files
         if not re.match("^((.*~)|(_.*))$", X)]
