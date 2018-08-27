@@ -1,31 +1,23 @@
 /* 
-Copyright (C) 2018, Rob Hansen.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2018, Rob Hansen.
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-var console = Cc["@mozilla.org/consoleservice;1"]
-	.getService(Ci.nsIConsoleService);
 
 var SES = {
 	config: null, // extension-wide configuration options
-
-	// The Mozilla message composition service -- the interface for
-	// everything related to message composition (including forwarding)
-	composeService: Cc['@mozilla.org/messengercompose;1']
-		.getService(Ci.nsIMsgComposeService),
-	
+		
 	// The Mozilla alert service.  On OS X the alert() function isn't
 	// reliable, so we use the Mozilla notification system instead.
 	alertService: Cc['@mozilla.org/alerts-service;1']
@@ -96,6 +88,7 @@ var SES = {
 	loadConfig: function() {
 		let configFile = SES.dirService.get("ProfD", Ci.nsIFile);
 		configFile.append("ses-tb.json");
+		SES.config = null;
 
 		if (! (configFile.exists() && configFile.isReadable())) {
 			window.openDialog("chrome://ses/content/configWindow.xul",
@@ -103,14 +96,19 @@ var SES = {
 			null).focus();
 		}
 
-		if (configFile.exists() && configFile.isReadable()) {
-			let str = {};
-			let bytesRead = 0;
-			let data = "";
-			let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
-				.createInstance(Ci.nsIFileInputStream);
-			let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
-				.createInstance(Ci.nsIConverterInputStream);
+		if (! (configFile.exists() && configFile.isReadable())) {
+			return;
+		}
+
+		let str = {};
+		let bytesRead = 0;
+		let data = "";
+		let fstream = Cc["@mozilla.org/network/file-input-stream;1"]
+			.createInstance(Ci.nsIFileInputStream);
+		let cstream = Cc["@mozilla.org/intl/converter-input-stream;1"]
+			.createInstance(Ci.nsIConverterInputStream);
+
+		try {
 			fstream.init(configFile, -1, 0, 0);
 			cstream.init(fstream, "UTF-8", 0, 0);
 
@@ -121,9 +119,20 @@ var SES = {
 			cstream.close();
 
 			SES.config = JSON.parse(data);
-		} else {
+			if (SES.config && (null != SES.config.serverUrl) &&
+			(null != SES.config.authToken) &&
+			(null != SES.config.name) &&
+			(SES.config.serverUrl.match(/^mailto:.*$/) ||
+			SES.config.serverUrl.match(/^https:\/\/.$/))) {
+				return;
+			}
 			SES.config = null;
 		}
+		catch (ex) {
+			SES.config = null;
+		}
+
+		SES.config = (data == "") ? null : JSON.parse(data);
 	},
 
 	// called on startup.  A no-op.
@@ -147,15 +156,17 @@ var SES = {
 	//         through code
 	// Exceptions: will not throw
 	reportViaEmail: function() {
+		let composeService: Cc['@mozilla.org/messengercompose;1']
+			.getService(Ci.nsIMsgComposeService),
 		let msgs = gFolderDisplay.selectedMessages;
 		let count = gFolderDisplay.selectedCount;
 		let mailserver = gFolderDisplay.displayedFolder.server;
 		let confirm = " of mail to\n" + dest + "\nfor inspection"
-		let asAttachment = SES.composeService.kForwardAsAttachment;
+		let asAttachment = composeService.kForwardAsAttachment;
 
 		try {
 			for (let i = 0 ; i < count ; i += 1) {
-				SES.composeService.forwardMessage(dest,
+				composeService.forwardMessage(dest,
 					msgs[i],
 					null, // do not open a compose window
 					mailserver,
