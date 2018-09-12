@@ -1,13 +1,23 @@
 <?xml version="1.0"?>
 <overlay id="ses_tb-overlay" 
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
- <script type="application/javascript" src="chrome://ses/content/overlay.js"/>
- <toolbarpalette id="MailToolbarPalette">
-    <toolbarbutton id="SES-button"
+  <script type="application/javascript" src="chrome://ses/content/overlay.js"/>
+  <toolbarpalette id="MailToolbarPalette">
+    <button id="SES-button"
       label="Report via Suspicious Email Submitter"
       type="button"
       oncommand="SES.report();"
+      tooltiptext="Report via Suspicious Email Submitter"
       />
+  </toolbarpalette>
+
+  <toolbarpalette id="header-view-toolbar">
+  <button id="SES-hv-button"
+    label="Report"
+    type="button"
+    oncommand="SES.report();"
+    tooltiptext="Report via Suspicious Email Submitter"
+    />
   </toolbarpalette>
 
   <menubar id="mail-menubar">
