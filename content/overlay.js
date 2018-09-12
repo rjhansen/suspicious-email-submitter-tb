@@ -16,6 +16,7 @@
 */
 
 var SES = {
+	count: 0, // count of emails sent this session
 	config: null, // extension-wide configuration options
 		
 	// The Mozilla alert service.  On OS X the alert() function isn't
@@ -156,8 +157,8 @@ var SES = {
 	//         through code
 	// Exceptions: will not throw
 	reportViaEmail: function() {
-		let composeService: Cc['@mozilla.org/messengercompose;1']
-			.getService(Ci.nsIMsgComposeService),
+		let composeService = Cc['@mozilla.org/messengercompose;1']
+			.getService(Ci.nsIMsgComposeService);
 		let msgs = gFolderDisplay.selectedMessages;
 		let count = gFolderDisplay.selectedCount;
 		let mailserver = gFolderDisplay.displayedFolder.server;
@@ -172,15 +173,19 @@ var SES = {
 					mailserver,
 					asAttachment);
 			}
+
+			SES.count += count;
+			confirm += "\n(" + SES.count + " total sent this session)"
+
 			if (1 == count) {
-				SES.notify("SES",
+				SES.notify("Suspicious Email Submitter",
 					"Sent one piece" + confirm);
 			} else {
-				SES.notify("SES",
+				SES.notify("Suspicious Email Submitter",
 					"Sent " + count + " pieces" + confirm);
 			}
 		} catch (error) {
-			SES.notify("SES", "Error: " + error);
+			SES.notify("Suspicious Email Submitter", "Error: " + error);
 		}
 	},
 
@@ -197,6 +202,7 @@ var SES = {
 		} 
 		catch (ex) {
 			req = new XMLHttpRequest();
+			mustClose = true;
 		}
 
 		// For right now, calls are done synchronously.  We need to
@@ -236,12 +242,11 @@ var SES = {
 		});		
 		req.send(body);
 		if (req.status != "200") {
-			SES.notify("SES error", "Server returned status " + 
-				req.status);
-		} else {
-			SES.notify("SES", "Submitted an email to " + SES.config["serverUrl"]);
+			SES.notify("Suspicious Email Submitter error",
+				"Server returned status " + req.status);
+			return false;
 		}
-		req.close();
+		return true;
 	},
 
 	// invoked when messages need to be sent off via HTTPS.
@@ -254,6 +259,10 @@ var SES = {
 	// Exceptions: will not throw
 	reportViaHTTPS: function() {
 		let count = gFolderDisplay.selectedCount;
+		if (0 == count) {
+			return;
+		}
+
 		let idx = 0;
 		for (idx = 0 ; idx < count ; idx += 1) {
 			let content = ""
@@ -275,10 +284,15 @@ var SES = {
 				}
 				sis.close();
 			} catch (ex) {
-				SES.notify("SES error", "error: " + ex);
+				SES.notify("Suspicious Email Submitter error", "error: " + ex);
 			}
-			SES.completeWebRequest(content);
+			if (SES.completeWebRequest(content)) {
+				SES.count += 1;
+			}
 		}
+		SES.notify("Suspicious Email Submitter", 
+			"Submitted an email to " + SES.config["serverUrl"] +
+			"\n(" + SES.count + " total sent this session)");
 	},
 
 	// invoked when the client hits the magic button.  At present it

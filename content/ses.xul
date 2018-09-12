@@ -11,7 +11,7 @@ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   </toolbarpalette>
 
   <menubar id="mail-menubar">
-    <menu id="menubar_SES" label="SES">
+    <menu id="menubar_SES" label="SES" insertbefore="tasksMenu">
       <menupopup id="SES-popup">
         <menuitem label="Edit configuration"
           oncommand="SES.editConfig();"/>

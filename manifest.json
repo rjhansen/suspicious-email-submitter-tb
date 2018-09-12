@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Suspicious Email Submitter - Thunderbird",
   "description": "Submits emails to MISP servers",
-  "version": "0.9",
+  "version": "1.0",
   "author": "Rob Hansen",
   "legacy": true
 }
