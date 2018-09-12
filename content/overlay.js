@@ -158,7 +158,11 @@ var SES = {
 	// Exceptions: will not throw
 	reportViaEmail: function() {
 		let composeService = Cc['@mozilla.org/messengercompose;1']
+<<<<<<< HEAD
 			.getService(Ci.nsIMsgComposeService);
+=======
+		    .getService(Ci.nsIMsgComposeService);
+>>>>>>> 52473a0520766bc48901afa1b9e6d6fb73daffff
 		let msgs = gFolderDisplay.selectedMessages;
 		let count = gFolderDisplay.selectedCount;
 		let mailserver = gFolderDisplay.displayedFolder.server;
