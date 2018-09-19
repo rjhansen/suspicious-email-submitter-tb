@@ -1,8 +1,12 @@
-# suspicious-email-submitter-thunderbird
+# Suspicious Email Submitter
 
-A Thunderbird add-on to facilitate forwarding malicious emails to analysts via the Suspicious Email Submission process.
+The Suspicious Email Submitter is an extension for common web browsers and email clients that enables the user to easily submit a suspicious email with all the information necessary to a pre-configured destination for further analysis, such as a [MISP instance](https://misp-project.org) or email address.
 
-## What does it do?
+This project is hosted by the [Computer Incident Response Center for Civil Society](https://civicert.org) (CiviCERT), representing the needs of the at-risk communities [Rapid Response Network](https://rarenet.org) member organizations serve. The extension will be built to be easily configurable for use by other organizations and communities both within and beyond these communities.
+
+## How to use Thunderbird Suspicious Email Submitter addon 
+
+The Suspicious Email Submitter requires configuration or [a configuration file](https://github.com/CiviCERT/suspicious-email-submitter/wiki/Configuration-Files) in order to function. This can be as basic as a destination email address (entered as `mailto:email@address.com`) in the Server URL of the configuration file.
 
 ### Globally
 
@@ -16,7 +20,7 @@ Both the 3-pane view toolbar and the single-message-view toolbar have a button a
 
 In the mail context menu there’s a “Report via Suspicious Email Submitter” entry.
 
-## How can I test it out?
+## Contributing: How can I build it?
 
 You will need [Python 3.5 or later](https://www.python.org/downloads/) to build from source.
 
@@ -27,7 +31,7 @@ You will need [Python 3.5 or later](https://www.python.org/downloads/) to build 
  * Install the `.xpi` file found in your home directory
  * Restart Thunderbird
  * In `Preferences->Toolbar Layout` (`View->Toolbars->Customize` on macOS), click and drag the “Report via Suspicious Email Submitter” button where you like in your Thunderbird toolbar
+ 
+ # License
 
-## Is it only email?
-
-Both `mailto:` and `https://` handlers exist, but only `mailto:` has had significant testing. `https://` is a work in progress.
+The Suspicious Email Submitter is licensed under [GPLv3](/LICENSE).
