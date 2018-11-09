@@ -1,2 +1,3 @@
 content ses content/
 overlay chrome://messenger/content/messenger.xul chrome://ses/content/ses.xul
+style   chrome://global/content/customizeToolbar.xul chrome://ses/content/overlay.css

@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<overlay id="ses_tb-overlay" 
+<?xml-stylesheet href="chrome://ses/content/overlay.css" type="text/css" ?>
+<overlay id="ses_tb-overlay"
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://ses/content/overlay.js"/>
   <toolbarpalette id="MailToolbarPalette">
@@ -12,11 +13,11 @@ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   </toolbarpalette>
 
   <toolbarpalette id="header-view-toolbar">
-  <button id="SES-hv-button"
-    label="Report"
-    type="button"
-    oncommand="SES.report();"
-    tooltiptext="Report via Suspicious Email Submitter"
+    <toolbarbutton id="SES-hv-button"
+      label="Report"
+      oncommand="SES.report();"
+      tooltiptext="Report via Suspicious Email Submitter"
+      class="ses toolbarbutton-1 msgHeaderView-button "
     />
   </toolbarpalette>
 
