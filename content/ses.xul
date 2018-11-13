@@ -4,11 +4,12 @@
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://ses/content/overlay.js"/>
   <toolbarpalette id="MailToolbarPalette">
-    <button id="SES-button"
+    <toolbarbutton id="SES-button"
       label="Report via Suspicious Email Submitter"
       type="button"
       oncommand="SES.report();"
       tooltiptext="Report via Suspicious Email Submitter"
+      class="ses toolbarbutton-1"
       />
   </toolbarpalette>
 
