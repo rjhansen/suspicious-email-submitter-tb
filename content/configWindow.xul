@@ -19,19 +19,30 @@
                 <vbox pack="center">
                     <label value="Name" control="name"/>
                 </vbox>
-                <textbox value="UNKNOWN" id="name" flex="1"/>
+                <textbox value="XYZZYXYZZY" id="name" flex="1"/>
             </row>
             <row>
                 <vbox pack="center">
-                    <label value="Server URL" control="serverUrl"/>
+                    <label value="Submit via"/>
                 </vbox>
-                <textbox value="UNKNOWN" id="serverUrl" flex="1"/>
+                <menulist editable="false" id="via" flex="1" oncommand="updateUI();">
+                    <menupopup>
+                        <menuitem label="Email"/>
+                        <menuitem label="Web form"/>
+                    </menupopup>
+                </menulist>
+            </row>
+            <row>
+                <vbox pack="center">
+                    <label value="Submit to" control="serverUrl"/>
+                </vbox>
+                <textbox value="XYZZYXYZZY" id="serverUrl" flex="1"/>
             </row>
             <row>
                 <vbox pack="center">
                     <label value="Token" control="authToken" />
                 </vbox>
-                <textbox value="UNKNOWN" id="authToken" />
+                <textbox value="XYZZYXYZZY" id="authToken"/>
             </row>
             <row>
                 <vbox pack="center">

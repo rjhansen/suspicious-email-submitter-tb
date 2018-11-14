@@ -87,6 +87,7 @@ var SES = {
 	// Errors: leaves SES.config as null
 	// Exceptions: will not throw, leaves SES.config as null
 	loadConfig: function() {
+		SES.notify("Foo", "Bar");
 		let configFile = SES.dirService.get("ProfD", Ci.nsIFile);
 		configFile.append("ses-tb.json");
 		SES.config = null;
@@ -134,6 +135,7 @@ var SES = {
 		}
 
 		SES.config = (data == "") ? null : JSON.parse(data);
+		SES.notify("None", SES.config)
 	},
 
 	// called on startup.  A no-op.

@@ -1,3 +1,15 @@
+function updateUI() {
+    let authField = document.getElementById("authToken");
+    let via = document.getElementById("via");
+    if (via.selectedIndex == 0) {
+        authField.value = "";
+        authField.setAttribute("disabled", "disabled");
+    }
+    else {
+        authField.removeAttribute("disabled");
+    }
+}
+
 /* The only thing onLoad does is see whether the window was invoked
  * with parameters to pre-populate the fields.  If so, populate; 
  * if not, display "Unspecified".  This function is robust in the
@@ -6,26 +18,33 @@
 function onLoad() {
     let params = window.arguments[0];
     let config = ((typeof params == "object") && params.input) ? 
-        params.input : {};
+        params.input : {
+            name: "Unspecified",
+            serverUrl: "mailto:unknown@example.com",
+            authToken: ""
+        };
     let nameField = document.getElementById("name");
     let serverField = document.getElementById("serverUrl");
     let authField = document.getElementById("authToken");
+    let via = document.getElementById("via");
 
-    nameField.value = (typeof config.name) == "string" ? 
-        config.name : "Unspecified";
-    serverField.value = (typeof config.serverUrl) == "string" ? 
-        config.serverUrl : "Unspecified";
-    authField.value = (typeof config.authToken) == "string" ? 
-        config.authToken : "Unspecified";
+    nameField.value = config.name;
+    authField.value = config.authToken;
+    
+    if (config.serverUrl.substring(0, 7) == "mailto:") {
+        via.selectedIndex = 0;
+        serverField.value = config.serverUrl.substring(7);
+        authField.setAttribute("disabled", "disabled");
+        authField.value = "";
+    } else {
+        via.selectedIndex = 1;
+        serverField.value = config.serverUrl.substring(8);
+        authField.removeAttribute("disabled");
+    }
 }
 
-
-/* onAccept() checks to see if the serverUrl field is populated
- * with either a mailto: or https:// URL.  Assuming so, it does
- * no sanity checking on the other inputs and writes the fields
- * to disk straightaway.  Yes, this means we put no bounds on the
- * length of the fields. */
 function onAccept() {
+    let via = document.getElementById("via");
     let nameField = document.getElementById("name");
     let serverField = document.getElementById("serverUrl");
     let authField = document.getElementById("authToken");
@@ -35,11 +54,11 @@ function onAccept() {
         "authToken": authField.value ? authField.value : ""
     };
 
-    let mailtoMatch = params.serverUrl.match(/^mailto:.*$/);
-    let httpsMatch = params.serverUrl.match(/^https:\/\/.*$/);
-    if (! (mailtoMatch || httpsMatch)) {
-        // the server URL is clearly bogus: abort.
-        return false;
+    let sv = serverField.value;
+    if (via.selectedIndex == 0) {
+        params["serverUrl"] = "mailto:" + sv;
+    } else {
+        params["serverUrl"] = "https://" + sv;
     }
 
     try {
@@ -124,8 +143,9 @@ function loadFile() {
             // The file was, for whatever reason, unreadable.  Don't even
             // try to recover: just populate with unspecifieds and bail out.
             nameField.value = "Unspecified";
-            serverField.value = "Unspecified";
+            serverField.value = "mailto:unknown@example.com";
             authField.value = "Unspecified";
+            updateUI();
             return;
         }
 
@@ -145,10 +165,21 @@ function loadFile() {
             cstream.close();
         
             let params = JSON.parse(data);
+
+            if (params.serverUrl.substring(0, 7) == "mailto:") {
+                document.getElementById("via").selectedIndex = 0;
+                params.serverUrl = params.serverUrl.substring(7);
+                authField.setAttribute("disabled", "disabled");
+            } else {
+                document.getElementById("via").selectedIndex = 1;
+                params.serverUrl = params.serverUrl.substring(8);
+                authField.removeAttribute("disabled");
+            }
+
             nameField.value = (params && params.name) ? 
                 params.name : "Unspecified";
             serverField.value = (params && params.serverUrl) ?
-                params.serverUrl : "Unspecified";
+                params.serverUrl : "mailto:unknown@example.com";
             authField.value = (params && params.authToken) ?
                 params.authToken : "Unspecified";
         }
