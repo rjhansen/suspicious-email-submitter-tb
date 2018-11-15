@@ -12,8 +12,7 @@ function updateUI() {
 
 /* The only thing onLoad does is see whether the window was invoked
  * with parameters to pre-populate the fields.  If so, populate; 
- * if not, display "Unspecified".  This function is robust in the
- * face of even pathologically malformed inputs.
+ * if not, display highly visible dummy information.
  */
 function onLoad() {
     let params = window.arguments[0];
