@@ -1,6 +1,6 @@
 content ses content/
 
-locale ses en-US chrome/locale/en-US/
+locale ses en-US locale/en-US/
 
 overlay chrome://messenger/content/messenger.xul chrome://ses/content/ses.xul
 style   chrome://global/content/customizeToolbar.xul chrome://ses/content/overlay.css
