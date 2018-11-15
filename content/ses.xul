@@ -1,34 +1,35 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://ses/content/overlay.css" type="text/css" ?>
+<!DOCTYPE overlay SYSTEM "chrome://ses/locale/ses.dtd">
 <overlay id="ses_tb-overlay"
 xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/javascript" src="chrome://ses/content/overlay.js"/>
   <toolbarpalette id="MailToolbarPalette">
     <toolbarbutton id="SES-button"
-      label="Report via Suspicious Email Submitter"
+      label="&toolbar_button_text;"
       type="button"
       oncommand="SES.report();"
-      tooltiptext="Report via Suspicious Email Submitter"
+      tooltiptext="&toolbar_button_tooltip;"
       class="ses toolbarbutton-1"
       />
   </toolbarpalette>
 
   <toolbarpalette id="header-view-toolbar">
     <toolbarbutton id="SES-hv-button"
-      label="Report"
+      label="&header_button_text;"
       oncommand="SES.report();"
-      tooltiptext="Report via Suspicious Email Submitter"
+      tooltiptext="&header_button_tooltip;"
       class="ses toolbarbutton-1 msgHeaderView-button "
     />
   </toolbarpalette>
 
   <menubar id="mail-menubar">
-    <menu id="menubar_SES" label="SES" insertbefore="tasksMenu">
+    <menu id="menubar_SES" label="&ses_abbr;" insertbefore="tasksMenu">
       <menupopup id="SES-popup">
-        <menuitem label="Edit configuration"
+        <menuitem label="&menu_edit_config;"
           oncommand="SES.editConfig();"/>
         <menuseparator/>
-        <menuitem label="About the Suspicious Email Submitter"
+        <menuitem label="&menu_about;"
           oncommand='messenger.launchExternalURL("https://github.com/CiviCERT/suspicious-email-submitter-thunderbird/wiki");'/>
       </menupopup>
     </menu>
@@ -36,7 +37,7 @@ xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <menupopup id="mailContext">
     <menuitem id="SES-report"
-      label="Report via Suspicious Email Submitter"
+      label="&context_text;"
       oncommand="SES.report();" />
   </menupopup>
 </overlay>

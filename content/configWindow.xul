@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE window SYSTEM "chrome://ses/locale/configWindow.dtd">
 
 <dialog id="config-window" title=""
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -8,7 +9,7 @@
         ondialogaccept="return onAccept();"
         ondialogcancel="return true;">
     <script src="chrome://ses/content/configWindow.js"/>
-    <dialogheader title="Suspicious Email Submitter Configuration"/>
+    <dialogheader title="&window_title;"/>
     <grid flex="1">
         <columns>
             <column/>
@@ -17,13 +18,13 @@
         <rows>
             <row>
                 <vbox pack="center">
-                    <label value="Name" control="name"/>
+                    <label value="&name_label;" control="name"/>
                 </vbox>
                 <textbox value="XYZZYXYZZY" id="name" flex="1"/>
             </row>
             <row>
                 <vbox pack="center">
-                    <label value="Submit via"/>
+                    <label value="&via_label;"/>
                 </vbox>
                 <menulist editable="false" id="via" flex="1" oncommand="updateUI();">
                     <menupopup>
@@ -34,13 +35,13 @@
             </row>
             <row>
                 <vbox pack="center">
-                    <label value="Submit to" control="serverUrl"/>
+                    <label value="&to_label;" control="serverUrl"/>
                 </vbox>
                 <textbox value="XYZZYXYZZY" id="serverUrl" flex="1"/>
             </row>
             <row>
                 <vbox pack="center">
-                    <label value="Token" control="authToken" />
+                    <label value="&authToken_label;" control="authToken" />
                 </vbox>
                 <textbox value="XYZZYXYZZY" id="authToken"/>
             </row>
@@ -48,7 +49,7 @@
                 <vbox pack="center">
                     <label value="Or, you can" />
                 </vbox>
-                <button label="load from a file" oncommand="loadFile();"/>
+                <button label="&load_label;" oncommand="loadFile();"/>
             </row>
         </rows>
     </grid>

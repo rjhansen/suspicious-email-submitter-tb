@@ -1,0 +1,8 @@
+<!ENTITY toolbar_button_text "Report via Suspicious Email Submitter">
+<!ENTITY toolbar_button_tooltip "Report via Suspicious Email Submitter">
+<!ENTITY header_button_text "Report">
+<!ENTITY header_button_tooltip "Report via Suspicious Email Submitter">
+<!ENTITY ses_abbr "SES">
+<!ENTITY menu_edit_config "Edit configuration">
+<!ENTITY menu_about "About the Suspicious Email Submitter">
+<!ENTITY context_text "Report via Suspicious Email Submitter">

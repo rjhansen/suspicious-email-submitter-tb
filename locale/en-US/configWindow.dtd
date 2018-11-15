@@ -1,0 +1,7 @@
+<!ENTITY window_title "Suspicious Email Submitter Configuration">
+<!ENTITY name_label "Name">
+<!ENTITY via_label "Submit via">
+<!ENTITY to_label "Submit to">
+<!ENTITY authToken_label "Token">
+<!ENTITY or_label "Or, you can">
+<!ENTITY load_label "load from a file">
